@@ -1,5 +1,8 @@
 #include "speechrecognition.h"
 #include <QTimer>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 SpeechRecognition::SpeechRecognition(QObject* parent) : QObject(parent)
 {
@@ -33,7 +36,7 @@ void SpeechRecognition::listen()
     m_audioFormat.setSampleSize(16);
     m_audioFormat.setCodec("audio/pcm");
     m_audioFormat.setByteOrder(QAudioFormat::LittleEndian);
-    m_audioFormat.setSampleType(QAudioFormat::UnSignedInt);
+    m_audioFormat.setSampleType(QAudioFormat::SignedInt);
 
     QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();
     qDebug() << info.deviceName();
@@ -62,6 +65,7 @@ void SpeechRecognition::listen()
 
     listening = true;
     m_audioInput->start(m_audioBuffer);
+    emit listeningStarted();
     qDebug() << m_audioInput->error();
     qDebug() << m_audioInput->state();
 }
@@ -90,11 +94,11 @@ void SpeechRecognition::stop()
 
     QString b64_audio = m_audioBuffer->data().toBase64();
 
-    QString json = QString("{ 'config': { 'encoding': 'LINEAR16', 'sampleRateHertz': 8000, 'languageCode': 'en-US', 'enableWordTimeOffsets': false }, 'audio': { 'content': '%1' } }").arg(b64_audio);
+    QString json = QString("{ 'config': { 'encoding': 'LINEAR16', 'sampleRateHertz': 16000, 'languageCode': 'en-US', 'enableWordTimeOffsets': false }, 'audio': { 'content': '%1' } }").arg(b64_audio);
 
     // json = "{ 'config': { 'encoding': 'FLAC', 'sampleRateHertz': 16000, 'languageCode': 'en-US', 'enableWordTimeOffsets': false }, 'audio': { 'uri': 'gs://cloud-samples-tests/speech/brooklyn.flac'  } }";
 
-    QString token = "woop";
+    QString token = "derp";
     // send audio
     const QUrl url("https://speech.googleapis.com/v1/speech:recognize");
     QNetworkRequest req(url);
@@ -116,6 +120,16 @@ void SpeechRecognition::networkReplyFinished(QNetworkReply *reply)
         qDebug() << "Error: " << reply->readAll();
     } else{
         m_speechText = reply->readAll();
+
+        QJsonDocument json = QJsonDocument::fromJson(m_speechText.toUtf8());
+        QJsonArray array = json["results"].toArray();
+        QJsonObject first = array[0].toObject();
+        qDebug() << first;
+        QJsonArray alternatives = first["alternatives"].toArray();
+        qDebug() << alternatives;
+        QJsonObject wat = alternatives[0].toObject();
+        m_speechText = wat["transcript"].toString();
+
         qDebug() << m_speechText;
         emit speechTextReady();
     }

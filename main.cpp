@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QLoggingCategory::setFilterRules(QStringLiteral("qt.speech.tts=true \n qt.speech.tts.*=true"));
 
     QTextToSpeech* speech = new QTextToSpeech;
