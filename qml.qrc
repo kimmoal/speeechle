@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>MessageModel.qml</file>
+        <file>app_background.png</file>
+        <file>speechle_banner.png</file>
+        <file>textbox.png</file>
+        <file>listenbuton.png</file>
+    </qresource>
+</RCC>
