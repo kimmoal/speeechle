@@ -5,10 +5,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    speechrecognition.cpp
+    speechrecognition.cpp \
+    translate.cpp
 
 HEADERS += \
-    speechrecognition.h
+    speechrecognition.h \
+    translate.h
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
     ANDROID_EXTRA_LIBS = \
